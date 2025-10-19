@@ -1,0 +1,14 @@
+node_modules
+.next
+.git
+*.db
+*.log
+.DS_Store
+data
+.npmrc
+.pnpm-approved-builds.json
+pnpm-lock.yaml
+Dockerfile
+docker-compose.yml
+README.md
+docs
