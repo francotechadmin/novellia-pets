@@ -50,7 +50,7 @@ export default async function AdminPage() {
         ) : (
           <div className="flex-1 overflow-hidden min-h-0">
             <ScrollArea className="h-full">
-              <div className="grid gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-3 pb-4 px-0 md:px-4">
+              <div className="grid gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-3 py-4 px-0 md:px-4">
                 {petsWithCounts.map(({ pet, recordCounts }) => (
                   <PetCard key={pet.id} pet={pet} recordCounts={recordCounts} />
                 ))}
