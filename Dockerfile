@@ -18,8 +18,12 @@ COPY . .
 # Build the Next.js application
 RUN npm run build
 
+# Copy entrypoint script
+COPY docker-entrypoint.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+
 # Expose port 3000
 EXPOSE 3000
 
-# Start the application
-CMD ["npm", "start"]
+# Use entrypoint script
+ENTRYPOINT ["docker-entrypoint.sh"]
