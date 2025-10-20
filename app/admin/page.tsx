@@ -52,7 +52,7 @@ export default async function AdminPage() {
             <ScrollArea className="h-full">
               <div className="grid gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-3 py-4 px-0 md:px-4">
                 {petsWithCounts.map(({ pet, recordCounts }) => (
-                  <PetCard key={pet.id} pet={pet} recordCounts={recordCounts} />
+                  <PetCard key={pet.id} pet={pet} recordCounts={recordCounts} fromAdmin={true} />
                 ))}
               </div>
             </ScrollArea>

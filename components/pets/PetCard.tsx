@@ -10,13 +10,15 @@ interface PetCardProps {
     vaccines: number
     allergies: number
   }
+  fromAdmin?: boolean
 }
 
-export function PetCard({ pet, recordCounts }: PetCardProps) {
+export function PetCard({ pet, recordCounts, fromAdmin = false }: PetCardProps) {
   const age = formatAge(pet.dateOfBirth)
+  const href = fromAdmin ? `/pets/${pet.id}?from=admin` : `/pets/${pet.id}`
 
   return (
-    <Link href={`/pets/${pet.id}?from=admin`}>
+    <Link href={href}>
       <Card className="hover:shadow-xl hover:scale-[1.02] transition-all cursor-pointer hover:border-primary/50">
         <CardHeader className="pb-3">
           <div className="flex items-start justify-between">

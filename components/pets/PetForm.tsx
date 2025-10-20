@@ -4,7 +4,7 @@ import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import { createPet } from '@/app/actions/pets'
-import { setCurrentPetId } from '@/app/actions/user'
+import { addPetToUser } from '@/app/actions/user'
 import { petSchema, type PetFormData } from '@/lib/validations/pet'
 import { ANIMAL_TYPES } from '@/lib/utils/constants'
 import { cn } from '@/lib/utils'
@@ -60,11 +60,11 @@ export function PetForm({ className, onSuccess }: PetFormProps) {
       if (result.error) {
         setErrors({ form: result.error })
       } else if (result.data) {
-        // Set the pet as current in cookie
-        await setCurrentPetId(result.data.id)
+        // Add the pet to user's pet collection
+        await addPetToUser(result.data.id)
 
         toast.success("Pet account created successfully!", {
-          description: `${result.data.name}'s account is now active.`
+          description: `${result.data.name}'s profile is ready.`
         })
         if (onSuccess) {
           onSuccess(result.data.id)

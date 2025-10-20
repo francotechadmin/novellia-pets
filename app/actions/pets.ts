@@ -133,6 +133,53 @@ export async function getPetById(id: number): Promise<{ data?: PetWithRecords; e
   }
 }
 
+export async function getPetsByIds(petIds: number[]): Promise<{ data?: Array<{ pet: Pet; recordCounts: { vaccines: number; allergies: number } }>; error?: string; success: boolean }> {
+  try {
+    const db = getDb()
+
+    if (petIds.length === 0) {
+      return { success: true, data: [] }
+    }
+
+    // Single query with GROUP BY to get pets and their record counts
+    const placeholders = petIds.map(() => '?').join(',')
+    const query = `
+      SELECT
+        p.*,
+        COUNT(CASE WHEN mr.record_type = 'vaccine' THEN 1 END) as vaccine_count,
+        COUNT(CASE WHEN mr.record_type = 'allergy' THEN 1 END) as allergy_count
+      FROM pets p
+      LEFT JOIN medical_records mr ON p.id = mr.pet_id
+      WHERE p.id IN (${placeholders})
+      GROUP BY p.id
+      ORDER BY p.created_at DESC
+    `
+
+    const rows = db.prepare(query).all(...petIds) as Array<PetRow & { vaccine_count: number; allergy_count: number }>
+
+    const petsWithCounts = rows.map(row => ({
+      pet: {
+        id: row.id,
+        name: row.name,
+        animalType: row.animal_type as Pet['animalType'],
+        ownerName: row.owner_name,
+        dateOfBirth: row.date_of_birth,
+        createdAt: row.created_at,
+        updatedAt: row.updated_at,
+      },
+      recordCounts: {
+        vaccines: row.vaccine_count,
+        allergies: row.allergy_count,
+      },
+    }))
+
+    return { success: true, data: petsWithCounts }
+  } catch (error) {
+    console.error('Error fetching pets by IDs:', error)
+    return { success: false, error: 'Failed to load pets' }
+  }
+}
+
 export async function getPetsWithCounts(ownerName?: string): Promise<{ data?: Array<{ pet: Pet; recordCounts: { vaccines: number; allergies: number } }>; error?: string }> {
   try {
     const db = getDb()

@@ -95,6 +95,7 @@ All API logic uses Next.js Server Actions instead of REST endpoints for type-saf
 **Pet Operations (`app/actions/pets.ts`):**
 - `createPet(data)` - Create new pet account
 - `getPetById(id)` - Get single pet with all medical records
+- `getPetsByIds(ids)` - Get multiple pets by IDs with record counts (user dashboard)
 - `getPetsWithCounts()` - Get all pets with record counts (admin dashboard)
 - `getStats()` - Get system statistics (total pets, records)
 
@@ -104,8 +105,11 @@ All API logic uses Next.js Server Actions instead of REST endpoints for type-saf
 - `getPetRecords(petId, type?)` - Get records for pet, optionally filtered by type
 
 **User Session (`app/actions/user.ts`):**
-- `getCurrentPetId()` - Get current user's pet ID from HTTP-only cookie
-- `setCurrentPetId(id)` - Set current user's pet ID in cookie
+- `getUserPetIds()` - Get array of user's pet IDs from HTTP-only cookie
+- `addPetToUser(id)` - Add pet ID to user's pet collection in cookie
+- `removePetFromUser(id)` - Remove pet from user's collection
+- `clearUserPets()` - Clear all pets from user's session
+- `getCurrentPetId()` - Get first pet ID (backward compatibility)
 
 ### Why Server Actions
 
@@ -151,15 +155,21 @@ Validation handled by Zod schemas in `lib/validations/`.
 
 All pages are **React Server Components** for better performance and SEO.
 
-1. **Homepage (`/`)** - Landing Page
-   - **Purpose:** Navigation hub and demo information center
-   - App title and tagline
-   - Feature highlights (vaccinations, allergies, QR codes, admin dashboard)
-   - Tech stack showcase with badges
-   - Demo information (15 pre-seeded pets)
-   - **No pet:** "Create Pet Account" button + "Admin Dashboard" link
-   - **Has pet:** "View Your Pet" button + "Admin Dashboard" button
-   - Creating a pet redirects to `/pets/[id]`
+1. **Homepage (`/`)** - User's Pet Dashboard / Landing Page
+   - **Purpose:** Personal dashboard showing user's pets, or landing page for new users
+   - **No pets (userPetIds = []):**
+     - App title, tagline, and feature highlights
+     - Tech stack showcase with hoverable badges explaining rationale
+     - Demo information (15 pre-seeded pets available)
+     - "Create Your First Pet" button + "Admin Dashboard" link
+     - Creating first pet redirects to `/pets/[id]`
+   - **Has pets (userPetIds = [1, 3, 5]):**
+     - "My Pets" header with count
+     - Responsive grid of user's pet cards (1 col mobile, 2 tablet, 3 desktop)
+     - Each card shows pet name, type, age, owner, vaccine/allergy counts
+     - Click card → Navigate to `/pets/[id]`
+     - "Add Another Pet" button + "Admin Dashboard" button
+     - Adding additional pet refreshes homepage with updated grid
 
 2. **Pet Dashboard (`/pets/[id]`)** - Individual Pet View
    - **Purpose:** View and manage specific pet's medical records
@@ -168,26 +178,30 @@ All pages are **React Server Components** for better performance and SEO.
    - Medical records tabs (All/Vaccines/Allergies)
    - Add Vaccine/Allergy buttons (responsive drawer on mobile)
    - ScrollArea with flexbox layout for dynamic height
-   - Used for both user's pet and admin viewing other pets
+   - Breadcrumb: "Homepage > {Pet Name}" or "Homepage > Admin > {Pet Name}"
+   - Used for both user's own pets and viewing pets from admin dashboard
 
-3. **Admin Dashboard (`/admin`)** - All Pets View
+3. **Admin Dashboard (`/admin`)** - All Pets System-Wide
    - **Purpose:** System overview with all pet accounts
-   - Breadcrumb: "My Pet / Admin Dashboard"
+   - Breadcrumb: "Homepage > Admin"
    - Compact statistics card (pets, vaccines, allergies with emojis)
-   - Responsive grid of pet cards (1 col mobile, 2 tablet, 3 desktop)
+   - Responsive grid of ALL pet cards (1 col mobile, 2 tablet, 3 desktop)
    - ScrollArea fills remaining viewport
-   - Each pet card links to `/pets/[id]`
-   - "Back to My Pet" button returns to `/`
+   - Each pet card links to `/pets/[id]?from=admin`
+   - "Add New Pet" button + "Back to My Pets" navigation
 
 ### Account Model
 
-**1 Pet = 1 Account:**
-- User is "signed in" on app load (tracked with HTTP-only cookies)
-- Creating a pet = creating a new account
-- `currentPetId` stored in server-side cookie identifies active account
+**Multi-Pet Support (Cookie-Based):**
+- User session tracked via HTTP-only cookie storing array of pet IDs
+- No traditional authentication/login system for MVP
+- `userPetIds` cookie stores JSON array: `[1, 3, 5]`
+- Users can create and manage multiple pets under one session
 - Cookie persists across sessions and devices
+- Homepage displays grid of user's pets (personal dashboard)
+- Admin dashboard shows ALL pets system-wide (not filtered by user)
 - More secure than localStorage approach
-- No authentication required for MVP
+- Clear separation between "my pets" (homepage) vs "all pets" (admin)
 
 ## Features
 
@@ -250,20 +264,20 @@ Each pet profile includes a downloadable QR code that links directly to their me
 
 ```
 app/
-├── page.tsx                    # Landing page (navigation hub + demo info) - SERVER COMPONENT
+├── page.tsx                    # User's pet dashboard / landing page - SERVER COMPONENT
 ├── pets/
 │   └── [id]/
 │       ├── page.tsx            # Pet dashboard (individual pet view) - SERVER COMPONENT
 │       └── not-found.tsx       # Pet not found page
 ├── admin/
-│   └── page.tsx                # Admin dashboard (all pets) - SERVER COMPONENT
+│   └── page.tsx                # Admin dashboard (all pets system-wide) - SERVER COMPONENT
 ├── api/
 │   └── pets/
 │       └── route.ts            # REST API endpoint (demo)
 ├── layout.tsx                  # Root layout with theme provider
 ├── not-found.tsx               # Global 404 page
 ├── actions/
-│   ├── user.ts                 # Cookie management (currentPetId)
+│   ├── user.ts                 # Cookie-based multi-pet management (userPetIds array)
 │   ├── pets.ts                 # Pet CRUD operations
 │   └── records.ts              # Medical record operations
 

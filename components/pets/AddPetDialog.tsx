@@ -24,27 +24,55 @@ import {
 } from '@/components/ui/drawer'
 import { PetForm } from './PetForm'
 
-export function AddPetDialog() {
+interface AddPetDialogProps {
+  isFirstPet?: boolean
+  buttonText?: string
+  buttonVariant?: 'default' | 'outline' | 'secondary' | 'ghost' | 'link' | 'destructive'
+  buttonSize?: 'default' | 'sm' | 'lg' | 'icon'
+  buttonClassName?: string
+}
+
+export function AddPetDialog({
+  isFirstPet = false,
+  buttonText,
+  buttonVariant = 'default',
+  buttonSize = 'default',
+  buttonClassName
+}: AddPetDialogProps) {
   const [open, setOpen] = React.useState(false)
   const isDesktop = useMediaQuery('(min-width: 768px)')
   const router = useRouter()
 
+  const displayText = buttonText || (isFirstPet ? 'Create Your First Pet' : 'Add Another Pet')
+  const dialogTitle = isFirstPet ? 'Create Your First Pet' : 'Add Pet'
+  const dialogDescription = isFirstPet
+    ? 'Start tracking medical records for your pet'
+    : 'Add another pet to your account'
+
   const handleSuccess = (petId: number) => {
     setOpen(false)
-    router.push(`/pets/${petId}`)
+    if (isFirstPet) {
+      // First pet: redirect to pet dashboard
+      router.push(`/pets/${petId}`)
+    } else {
+      // Additional pet: refresh homepage to show updated grid
+      router.refresh()
+    }
   }
 
   if (isDesktop) {
     return (
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>
-          <Button>Create Pet Account</Button>
+          <Button variant={buttonVariant} size={buttonSize} className={buttonClassName}>
+            {displayText}
+          </Button>
         </DialogTrigger>
         <DialogContent className="sm:max-w-[525px]">
           <DialogHeader>
-            <DialogTitle>Create Pet Account</DialogTitle>
+            <DialogTitle>{dialogTitle}</DialogTitle>
             <DialogDescription>
-              Each pet gets their own account to track medical records
+              {dialogDescription}
             </DialogDescription>
           </DialogHeader>
           <PetForm onSuccess={handleSuccess} />
@@ -56,13 +84,15 @@ export function AddPetDialog() {
   return (
     <Drawer open={open} onOpenChange={setOpen}>
       <DrawerTrigger asChild>
-        <Button>Create Pet Account</Button>
+        <Button variant={buttonVariant} size={buttonSize} className={buttonClassName}>
+          {displayText}
+        </Button>
       </DrawerTrigger>
       <DrawerContent>
         <DrawerHeader className="text-left">
-          <DrawerTitle>Create Pet Account</DrawerTitle>
+          <DrawerTitle>{dialogTitle}</DrawerTitle>
           <DrawerDescription>
-            Each pet gets their own account to track medical records
+            {dialogDescription}
           </DrawerDescription>
         </DrawerHeader>
         <PetForm className="px-4" onSuccess={handleSuccess} />
