@@ -1,6 +1,10 @@
-# Novellia Pets
+<h1 align="center">Novellia Pets</h1>
 
-A pet medical records management application built with Next.js 15, TypeScript, SQLite, and server components with cookie-based state management.
+<p align="center">
+  <a href="https://novellia-pets-production.up.railway.app/">Live Demo</a> · <a href="YOUTUBE_LINK">Video Walkthrough</a>
+</p>
+
+<p align="center">A pet medical records management application built with Next.js 15, TypeScript, SQLite, and server components with cookie-based state management.</p>
 
 ![Landing Page](public/landing.jpg)
 
@@ -54,6 +58,14 @@ docker compose up --build -d
 # Disable auto-seeding (if the compose file reads SEED_DB)
 SEED_DB=false docker compose up --build
 ```
+
+### Railway Deployment
+
+```bash
+railway login && railway init && railway up
+```
+
+Add persistent volume (`/app/data`) and set `DATABASE_PATH=/app/data/novellia-pets.db` in Railway dashboard.
 
 ## Screenshots
 
