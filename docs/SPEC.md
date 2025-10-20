@@ -13,7 +13,7 @@ Novellia Pets is a medical record management system for pets, allowing pet owner
 2. **Medical Record Management** - Add and view vaccination and allergy records
 3. **Pet Dashboard** - View your pet's profile and medical records on homepage
 4. **Admin Dashboard** - View all pet accounts with statistics at `/admin`
-5. **Additional Feature** - (See Section 7 for proposals)
+5. **QR Code for Emergency Access** - Downloadable QR code linking to pet's medical records for emergency responders
 
 ### 1.1.1 Account Model: 1 Pet = 1 Account
 This MVP uses a unique approach where **each pet represents a separate account**:
@@ -252,6 +252,7 @@ components/
 ├── pets/
 │   ├── PetCard.tsx             # Pet card for admin grid
 │   ├── PetProfile.tsx          # Pet profile display
+│   ├── PetQRCode.tsx           # QR code for emergency access
 │   ├── AddPetDialog.tsx        # Create pet modal
 │   └── PetDashboard.tsx        # Pet dashboard with tabs/records
 ├── records/
@@ -281,8 +282,20 @@ lib/
 1. **Create Pet Account** - First load shows create prompt → form → save to localStorage → show dashboard
 2. **Add Medical Records** - Add vaccines/allergies from dashboard → appear in tabs immediately
 3. **View Admin Dashboard** - Click button → see all pets + stats → return to my pet
+4. **Download QR Code** - Click download button on pet profile → get QR code PNG → print and attach to collar
 
 ---
+
+## 7. Additional Feature: QR Code
+
+**What:** Downloadable QR code on each pet profile that links to `/pets/[id]`
+
+**Why:** Safety feature for lost pets. Finder can scan collar QR code to instantly view allergies, vaccines, and owner info.
+
+**Implementation:** Client component using `qrcode` library, displayed next to pet profile card with download button.
+
+---
+
 ## 13. Success Metrics
 
 ### MVP Success Criteria
@@ -314,7 +327,12 @@ lib/
    - Click "Add Allergy" → Add Peanuts allergy (severe)
    - View records in tabs
 
-3. **Admin Dashboard**:
+3. **QR Code Feature**:
+   - Show QR code next to pet profile
+   - Click "Download QR Code" → PNG file downloads
+   - Explain: "Print and attach to collar for emergency access"
+
+4. **Admin Dashboard**:
    - Click "Go to Admin Dashboard"
    - See statistics cards (15 pets, 89 vaccines, 26 allergies)
    - Browse all pet cards
