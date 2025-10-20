@@ -6,6 +6,25 @@ export type RecordType = 'vaccine' | 'allergy' | 'lab_result' | 'vital'
 
 export type Severity = 'mild' | 'severe'
 
+// Database row types (snake_case, matching DB schema)
+export interface PetRow {
+  id: number
+  name: string
+  animal_type: string
+  owner_name: string
+  date_of_birth: string
+  created_at: string
+  updated_at: string
+}
+
+export interface MedicalRecordRow {
+  id: number
+  pet_id: number
+  record_type: string
+  data: string // JSON string
+  created_at: string
+}
+
 export interface Pet {
   id: number
   name: string
