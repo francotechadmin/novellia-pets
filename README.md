@@ -4,6 +4,27 @@ A pet medical records management application built with Next.js 15, TypeScript, 
 
 ![Landing Page](public/landing.jpg)
 
+## Features
+
+- **Multi-Pet Support**: Users can create and manage multiple pets under a single cookie-based session.
+- **Medical Record Management**: Add and view vaccination and allergy records for each pet.
+- **Pet Dashboard**: View individual pet's profile and medical records at `/pets/[id]`.
+- **User Dashboard**: View all your pets at homepage (`/`).
+- **Admin Dashboard**: View all pet accounts system-wide with statistics at `/admin`.
+- **QR Code for Emergency Access**: Downloadable QR code linking to pet's medical records for emergency responders.
+
+## Why Next.js?
+
+- **Compatibility**: Main Novellia App is built with Next.js. It's a good fit for this MVP.
+- **Server Components & Server Actions**: Leverages Next.js App Router to keep UI rendering and mutation logic on the server — smaller client bundles, safer secrets, and simpler data fetching patterns.
+- **Performance & SEO**: Built‑in server rendering, streaming, and automatic static optimization improve load times and crawlability for pet profiles and admin pages.
+- **End‑to‑end Type Safety**: Native TypeScript support combined with Zod validation and Server Actions enables type-safe inputs/outputs from client forms to DB mutations.
+- **Routing & Asset Handling**: File-system routing, route handlers, and optimized static asset delivery (images, QR exports) reduce boilerplate and deployment complexity.
+- **Edge & Middleware Support**: Cookie-based session handling and middleware hooks allow flexible request-level logic without separate auth services.
+- **Great DX & Hosting Options**: Fast refresh, detailed error overlays, and zero-config Vercel deployments speed iteration for an MVP.
+
+These strengths make Next.js a pragmatic and efficient choice for building the Novellia Pets MVP.
+
 ## Quick Start
 
 ### Development
@@ -205,13 +226,10 @@ All pages are **React Server Components** for better performance and SEO.
 - No traditional authentication/login system for MVP
 - `userPetIds` cookie stores JSON array: `[1, 3, 5]`
 - Users can create and manage multiple pets under one session
-- Cookie persists across sessions and devices
-- Homepage displays grid of user's pets (personal dashboard)
-- Admin dashboard shows ALL pets system-wide (not filtered by user)
-- More secure than localStorage approach
-- Clear separation between "my pets" (homepage) vs "all pets" (admin)
+- Cookie persists across sessions on the same browser/device when a persistent HTTP-only cookie is used; it does not sync across different devices or browsers.
+- Homepage displays a responsive grid of the user's pets as a personal dashboard (1 column mobile, 2 tablet, 3 desktop). Each pet card links to /pets/[id] and shows summary info (name, type, age, owner, vaccine/allergy counts).
 
-## Features
+## Extra Features
 
 ### QR Code for Emergency Access
 
@@ -228,19 +246,18 @@ Each pet profile includes a downloadable QR code that links directly to their me
 **Why this feature:**
 - **Safety:** Emergency responders can instantly access allergy/vaccination info
 - **Practical:** Addresses real-world need (lost pets, vet visits, boarding)
-ß
 
 ### UX Choices
-
-**Server-First Architecture:**
-- All pages are React Server Components
-- Server Actions for mutations (type-safe, no REST endpoints)
-- Cookie-based state management (more secure than localStorage)
 
 **Shadcn UI:**
 - Component library leverages Tailwind CSS
 - Easy theming with CSS variables
 - Consistent design across pages
+
+**Server-First Architecture:**
+- All pages are React Server Components
+- Server Actions for mutations (type-safe, no REST endpoints)
+- Cookie-based state management
 
 **Responsive Design:**
 - Media query hook (`use-media-query.ts`) determines layout
@@ -263,22 +280,19 @@ Each pet profile includes a downloadable QR code that links directly to their me
 - **Tailwind CSS 4** - Styling
 - **SQLite** (better-sqlite3) - Database
 - **Zod** - Schema validation
-- **shadcn/ui** - Component library (17 components)
-- **Sonner** - Toast notifications
-- **QRCode** - QR code generation for pet profiles
-- **Cookies** - Server-side state management
+- **shadcn/ui** - Component library (20 components being used)
 
 ## Project Structure
 
 ```
 app/
-├── page.tsx                    # User's pet dashboard / landing page - SERVER COMPONENT
+├── page.tsx                    # User's pet dashboard / landing page
 ├── pets/
 │   └── [id]/
-│       ├── page.tsx            # Pet dashboard (individual pet view) - SERVER COMPONENT
+│       ├── page.tsx            # Pet dashboard (individual pet view)
 │       └── not-found.tsx       # Pet not found page
 ├── admin/
-│   └── page.tsx                # Admin dashboard (all pets system-wide) - SERVER COMPONENT
+│   └── page.tsx                # Admin dashboard (all pets system-wide)
 ├── api/
 │   └── pets/
 │       └── route.ts            # REST API endpoint (demo)
