@@ -33,23 +33,26 @@ These strengths make Next.js a pragmatic and efficient choice for building the N
 # Install dependencies
 npm install
 
-# Optional seed database with sample data (15 pets)
+# Optional: seed database with sample data (15 pets)
 npm run seed
 
 # Start development server
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) to view the application.
+Open http://localhost:3000 to view the application.
 
-### Docker Deployment
+### Docker / Docker Compose
 
 ```bash
-# Build and start with auto-seeding
-docker-compose up
+# Build and start (auto-seeds by default if enabled)
+docker compose up --build
 
-# Disable auto-seeding
-SEED_DB=false docker-compose up
+# Start in detached mode
+docker compose up --build -d
+
+# Disable auto-seeding (if the compose file reads SEED_DB)
+SEED_DB=false docker compose up --build
 ```
 
 ## Screenshots
