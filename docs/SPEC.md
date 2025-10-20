@@ -2,27 +2,38 @@
 
 ## Executive Summary
 
-Novellia Pets is a medical record management system for pets, allowing pet owners to track vaccinations and allergies. This MVP uses a **1 pet = 1 account** model where each pet represents a separate account/profile. Users can create a pet account, add medical records to it, and view their pet's information. Admins can view all pet accounts across the system.
+Novellia Pets is a medical record management system for pets, allowing pet owners to track vaccinations and allergies. This MVP uses a **multi-pet support** model where users can create and manage multiple pets under a single cookie-based session. Users can view their pets on a personal dashboard, add medical records to each pet, and view individual pet profiles. Admins can view all pet accounts system-wide.
 
 ---
 
 ## 1. Product Overview
 
 ### 1.1 Core Features
-1. **Pet Account Creation** - Create a new pet account (1 pet = 1 account)
+1. **Pet Account Creation** - Create multiple pets under one user account
 2. **Medical Record Management** - Add and view vaccination and allergy records
 3. **Pet Dashboard** - View individual pet's profile and medical records at `/pets/[id]`
-4. **Admin Dashboard** - View all pet accounts with statistics at `/admin`
-5. **QR Code for Emergency Access** - Downloadable QR code linking to pet's medical records for emergency responders
+4. **User Dashboard** - View all your pets at homepage (`/`)
+5. **Admin Dashboard** - View all pet accounts system-wide with statistics at `/admin`
+6. **QR Code for Emergency Access** - Downloadable QR code linking to pet's medical records for emergency responders
 
-### 1.1.1 Account Model: 1 Pet = 1 Account
-This MVP uses a unique approach where **each pet represents a separate account**:
-- Creating a new pet = creating a new account
-- User is "signed in" on app load (tracked via HTTP-only cookies)
-- `currentPetId` stored in cookie identifies the active account
-- Homepage (`/`) is a landing page with navigation options
-- After creating a pet, user is redirected to `/pets/[id]` (their pet's dashboard)
-- Admin dashboard at `/admin` shows all pet accounts
+### 1.1.1 Account Model: Multi-Pet Support
+
+**Simplified User Model (Cookie-Based):**
+- No traditional authentication/login system for MVP
+- User tracked via HTTP-only cookie storing array of pet IDs
+- User can create and manage multiple pets
+- Cookie persists across sessions
+
+**Approach:**
+- `userPetIds` cookie stores JSON array: `[1, 3, 5]`
+- Homepage (`/`) displays grid of user's pets (personal dashboard)
+- Creating a pet adds ID to cookie array and shows updated pet list
+- Admin dashboard (`/admin`) shows ALL pets system-wide (not just user's pets)
+
+**Rationale:**
+- Meets requirement: "Dashboard to view existing pets" (plural)
+- Simpler than full auth system for MVP
+- Clearly separates "my pets" (homepage) vs "all pets" (admin)
 
 ### 1.2 Out of Scope (MVP)
 - Authentication/login system
@@ -106,6 +117,7 @@ CREATE INDEX idx_medical_records_type ON medical_records(record_type);
 ## 3. Server Actions
 
 Server Actions in `app/actions/`:
+- `user.ts` - getUserPetIds, addPetToUser (manage `userPetIds` cookie array)
 - `pets.ts` - createPet, getPetById, getPetsWithCounts, getStats
 - `records.ts` - addVaccineRecord, addAllergyRecord, getPetRecords
 
@@ -120,21 +132,19 @@ Server Actions in `app/actions/`:
 │  User loads app → Homepage (/)                           │
 ├─────────────────────────────────────────────────────────┤
 │                                                           │
-│  ┌─ No Pet (currentPetId = null) ─┐                     │
-│  │                                  │                     │
-│  │  📝 "Create Pet Account" button │                     │
-│  │  🔧 "Go to Admin Dashboard"     │                     │
-│  │                                  │                     │
-│  └─ Pet Exists (currentPetId set) ─┤                     │
-│     │                               │                     │
-│     │  🐾 "View Your Pet" button    │                     │
-│     │  🔧 "Go to Admin Dashboard"   │                     │
-│     │                               │                     │
-│     └───────────────────────────────┘                     │
-│                                                           │
-│  Click "Create Pet" → Redirects to /pets/[id]            │
-│  Click "View Your Pet" → Redirects to /pets/[id]         │
-│  Click "Go to Admin" → Redirects to /admin               │
+│  ┌─ No Pets (userPetIds = []) ─┐                        │
+│  │                                │                       │
+│  │  📝 Welcome + Create Pet       │                       │
+│  │  🔧 Admin Dashboard link       │                       │
+│  │                                │                       │
+│  └─ Has Pets (userPetIds = [1,3,5]) ─┐                  │
+│     │                                  │                  │
+│     │  🐾 Grid of Your Pets (3 cards) │                  │
+│     │  ➕ "Add Another Pet" button     │                  │
+│     │  🔧 "Admin Dashboard" link       │                  │
+│     │                                  │                  │
+│     │  Click pet card → /pets/[id]    │                  │
+│     └──────────────────────────────────┘                  │
 └─────────────────────────────────────────────────────────┘
 
 ┌─────────────────────────────────────────────────────────┐
@@ -143,64 +153,57 @@ Server Actions in `app/actions/`:
 │  🐾 Pet Profile + QR Code                                │
 │  📋 Medical Records (Tabs)                               │
 │  ➕ Add Vaccine/Allergy                                  │
+│  ← "Back to My Pets" → Returns to /                      │
 └─────────────────────────────────────────────────────────┘
 
 ┌─────────────────────────────────────────────────────────┐
 │  Admin Dashboard (/admin)                                │
 ├─────────────────────────────────────────────────────────┤
-│  📊 Statistics (total pets, vaccines, allergies)         │
-│  🐾 Grid of all pet cards                                │
-│  ← "Back to My Pet" button                               │
+│  📊 Statistics (ALL pets system-wide)                    │
+│  🐾 Grid of ALL pet cards (not just user's)             │
+│  ← "Back to My Pets" → Returns to /                      │
 └─────────────────────────────────────────────────────────┘
 ```
 
 ### 4.1 Page Structure
 
-#### 4.1.1 Homepage (`/`) - Landing Page
-**Purpose**: Navigation hub and demo information center
+#### 4.1.1 Homepage (`/`) - User's Pet Dashboard
+**Purpose**: Personal dashboard showing all pets owned by the user
 
-**Layout**:
-- App title: "Novellia Pets"
-- Tagline: "Medical records management for your pets"
-- Feature highlights:
-  - Track vaccinations and allergies
-  - QR code for emergency access
-  - Admin dashboard with statistics
-- Technology stack showcase:
-  - Next.js 15 with Server Components
-  - SQLite with polymorphic medical records table
-  - Server Actions + REST API demo endpoint
-  - Tailwind CSS + shadcn/ui
-- Demo information:
-  - Pre-seeded with 15 sample pets
-  - Create your own pet or explore admin dashboard
-
-**No Pet State** (currentPetId = null):
-- "Create Pet Account" button (opens dialog)
+**No Pets State** (userPetIds = []):
+- Welcome message with app info and feature highlights
+- "Create Your First Pet" button (opens dialog)
 - "Go to Admin Dashboard" link
+- Tech stack badges with tooltips
+- Demo information (15 sample pets available)
 
-**With Pet State** (currentPetId exists):
-- "View Your Pet" button → redirects to `/pets/[currentPetId]`
+**With Pets State** (userPetIds = [1, 3, 5]):
+- Page header: "My Pets" with count
+- Responsive grid of user's pet cards (similar to admin but filtered)
+- Each card shows: pet name, type, age, owner, vaccine/allergy counts
+- Click card → Navigate to `/pets/[id]`
+- "Add Another Pet" button
 - "Go to Admin Dashboard" link
 
 **Components** (shadcn/ui):
-- `Card` - Centered landing card with sections
-- `Button` - Navigation actions
-- `Badge` - Technology tags
+- `Card` - Pet cards for grid
+- `Button` - Add pet, navigation actions
+- `Badge` - Pet type, tech stack, record counts
 - `Dialog` - Pet creation modal
+- `Tooltip` - Tech stack rationale
 
 **On Pet Creation**:
-- Save pet ID to cookie
-- Redirect to `/pets/[id]` (newly created pet's dashboard)
+- Add pet ID to `userPetIds` cookie array
+- Refresh homepage to show updated pet grid (stays on `/`)
 
 #### 4.1.2 Add Pet Dialog
-**Purpose**: Create a new pet account (becomes user's account)
+**Purpose**: Create a new pet and add it to user's pet collection
 
 **Layout**:
-- Triggered by "Create Pet Account" button on homepage (when no pet exists)
+- Triggered by "Create Your First Pet" button (no pets) or "Add Another Pet" button (existing pets)
 - Dialog component (centered modal)
 - Form with validation
-- On success, closes modal, saves pet ID to cookie, and redirects to `/pets/[id]`
+- On success, closes modal, adds pet ID to `userPetIds` cookie array
 
 **Components**:
 - `Dialog` - Modal wrapper
@@ -209,7 +212,10 @@ Server Actions in `app/actions/`:
 - `Select` - Animal type dropdown
 - `Button` - Submit with loading state
 
-**Note**: Use native `<input type="date">` for date of birth. After creation, pet ID is stored in cookie and user is redirected to `/pets/[id]`.
+**Behavior**:
+- **First pet (userPetIds = [])**: Redirects to `/pets/[id]` after creation
+- **Additional pet (userPetIds = [1, 3])**: Stays on homepage, refreshes to show updated pet grid with new pet card
+- Uses native `<input type="date">` for date of birth
 
 #### 4.1.3 Pet Dashboard (`/pets/[id]`)
 **Purpose**: View and manage a specific pet's profile and medical records
@@ -244,29 +250,31 @@ Server Actions in `app/actions/`:
 
 **Components**:
 - `Card` - Stat cards and pet cards
-- `Button` - Actions and navigation ("Back to My Pet")
+- `Button` - Actions and navigation ("Back to My Pets")
 - `Badge` - Pet type, record counts, severity indicators
 - `Skeleton` - Loading states
 
-**Note**: Admin dashboard shows all pets in the system. Users can return to their pet via "Back to My Pet" button or navigating to `/`.
+**Note**: Admin dashboard shows all pets in the system. Users can return to their pets dashboard via "Back to My Pets" button or navigating to `/`.
 
 #### 4.1.5 Page Flow Summary
 
 **User Journey**:
 1. User loads app → Homepage (`/`) - Landing page with app info
-2. **If no pet exists**: Click "Create Pet Account" → Opens dialog → Create pet → Redirects to `/pets/[id]`
-3. **If pet exists**: Click "View Your Pet" → Redirects to `/pets/[id]`
-4. On pet dashboard: View medical records, add vaccines/allergies, download QR code
-5. Click "Go to Admin Dashboard" → `/admin` to view all pets
-6. On admin dashboard: View stats, browse all pet cards, click pet card → `/pets/[id]`
-7. Click "Back to My Pet" → Returns to `/` (homepage)
+2. **If no pets (userPetIds = [])**: Click "Create Your First Pet" → Opens dialog → Create pet → Redirects to `/pets/[id]`
+3. **If pets exist (userPetIds = [1, 3, 5])**: Homepage shows grid of user's 3 pet cards
+4. Click pet card from grid → Navigate to `/pets/[id]` for that specific pet
+5. Click "Add Another Pet" → Opens dialog → Create pet → Refreshes homepage with new pet card added to grid
+6. On pet dashboard: View medical records, add vaccines/allergies, download QR code
+7. Click "Go to Admin Dashboard" → `/admin` to view all pets system-wide
+8. On admin dashboard: View stats, browse all pet cards, click pet card → `/pets/[id]`
+9. Click "Back to My Pets" → Returns to `/` (user's personal pet dashboard)
 
 ### 4.2 Navigation
 
-- `/` - Landing page (navigation hub)
-- `/pets/[id]` - Pet dashboard with medical records
-- `/admin` - All pets + statistics
-- `currentPetId` stored in HTTP-only cookie
+- `/` - User's pet dashboard (personal pet grid when pets exist, landing page when no pets)
+- `/pets/[id]` - Individual pet dashboard with medical records
+- `/admin` - All pets system-wide + statistics
+- `userPetIds` array stored in HTTP-only cookie (e.g., `[1, 3, 5]`)
 
 ---
 
@@ -288,7 +296,7 @@ Server Actions in `app/actions/`:
 All API logic uses Next.js Server Actions for type-safe, server-side operations:
 - `app/actions/pets.ts` - Pet CRUD operations
 - `app/actions/records.ts` - Medical record operations
-- `app/actions/user.ts` - Cookie-based session management
+- `app/actions/user.ts` - Cookie-based session management (manages `userPetIds` array)
 
 **Demo: REST API Endpoint**
 For demonstration purposes, `/api/pets` route shows how to expose REST endpoints for external clients:
@@ -321,7 +329,7 @@ Content-Type: application/json
 ### 5.3 File Structure
 ```
 app/
-├── page.tsx                     # Landing page (navigation hub)
+├── page.tsx                     # User's pet dashboard (landing page when no pets)
 ├── pets/
 │   └── [id]/
 │       ├── page.tsx             # Pet dashboard (individual pet view)
@@ -334,7 +342,7 @@ app/
 ├── layout.tsx                   # Root layout
 ├── not-found.tsx                # Global 404 page
 ├── actions/
-│   ├── user.ts                  # Cookie-based session management
+│   ├── user.ts                  # Cookie-based multi-pet management (userPetIds array)
 │   ├── pets.ts                  # Pet server actions
 │   └── records.ts               # Record server actions
 components/
@@ -368,11 +376,12 @@ lib/
 
 ## 6. User Stories
 
-1. **Create Pet Account** - Load homepage → click "Create Pet Account" → fill form → save to cookie → redirect to `/pets/[id]`
-2. **View My Pet** - Load homepage (with existing pet) → click "View Your Pet" → redirects to `/pets/[id]` dashboard
-3. **Add Medical Records** - On pet dashboard → click "Add Vaccine/Allergy" → form → appears in tabs immediately
-4. **View Admin Dashboard** - Click "Go to Admin Dashboard" → see all pets + stats → click pet card to view details
-5. **Download QR Code** - On pet dashboard → click "Download QR Code" → get PNG file → print and attach to collar
+1. **Create First Pet** - Load homepage (no pets) → click "Create Your First Pet" → fill form → save to cookie array → redirect to `/pets/[id]`
+2. **View My Pets** - Load homepage (with existing pets) → see grid of your pet cards → click any pet card → navigate to `/pets/[id]`
+3. **Add Another Pet** - On homepage → click "Add Another Pet" → fill form → save to cookie array → homepage refreshes with new pet card in grid
+4. **Add Medical Records** - On pet dashboard → click "Add Vaccine/Allergy" → form → appears in tabs immediately
+5. **View Admin Dashboard** - Click "Go to Admin Dashboard" → see all pets system-wide + stats → click pet card to view details
+6. **Download QR Code** - On pet dashboard → click "Download QR Code" → get PNG file → print and attach to collar
 
 ---
 
@@ -406,19 +415,20 @@ lib/
 - Ready to discuss design decisions and extensibility
 
 ### Demo Script
-1. **Landing Page**:
-   - Load homepage → See app title, tagline, and feature description
-   - Show "Create Pet Account" button
+1. **Landing Page** (First Visit - No Pets):
+   - Load homepage → See app title, tagline, and feature descriptions
+   - Show tech stack badges (hover to see rationale)
+   - Show "Create Your First Pet" button
    - Show "Go to Admin Dashboard" link
 
-2. **Create Pet** (First Visit):
-   - Click "Create Pet Account" → Opens dialog
+2. **Create First Pet**:
+   - Click "Create Your First Pet" → Opens dialog
    - Fill form (e.g., "Buddy", Dog, "John Smith", DOB)
    - Submit → Redirects to `/pets/1` (Buddy's dashboard)
 
 3. **Pet Dashboard**:
    - Show pet profile card with info
-   - Show QR code (desktop)
+   - Show QR code (desktop only)
    - Click "Add Vaccine" → Add Rabies vaccine
    - Click "Add Allergy" → Add Peanuts allergy (severe)
    - View records in tabs
@@ -428,16 +438,31 @@ lib/
    - Click "Download QR Code" → PNG file downloads
    - Explain: "Print and attach to collar for emergency access"
 
-5. **Admin Dashboard**:
-   - Click "Go to Admin Dashboard"
-   - See statistics cards (15 pets, 89 vaccines, 26 allergies)
-   - Browse all pet cards in grid
-   - Click any pet card → View that pet's dashboard
+5. **Return to Homepage** (Now Has Pets):
+   - Navigate to `/` or click breadcrumb "Homepage"
+   - Now shows grid with Buddy's pet card
+   - Show "Add Another Pet" button
+   - Show "Admin Dashboard" link
 
-6. **Return to Homepage**:
-   - Navigate to `/` or click "Back to My Pet"
-   - Now shows "View Your Pet" button (cookie exists)
-   - Click "View Your Pet" → Returns to Buddy's dashboard
+6. **Add Second Pet**:
+   - Click "Add Another Pet" → Opens dialog
+   - Fill form (e.g., "Whiskers", Cat, "John Smith", DOB)
+   - Submit → Homepage refreshes, now shows grid with 2 pet cards
+
+7. **Navigate Between Pets**:
+   - Click Whiskers card → Navigate to `/pets/2`
+   - Click breadcrumb "Homepage" → Return to grid
+   - Click Buddy card → Navigate to `/pets/1`
+
+8. **Admin Dashboard**:
+   - Click "Admin Dashboard"
+   - See statistics cards (17 pets, 90 vaccines, 27 allergies)
+   - Browse ALL pet cards in grid (includes sample data + your 2 pets)
+   - Click any pet card → View that pet's dashboard with breadcrumb "Homepage > Admin > {Pet Name}"
+
+9. **Return to My Pets**:
+   - Click breadcrumb "Homepage" or "Back to My Pets"
+   - Returns to personal pet grid showing only your 2 pets
 
 ---
 
