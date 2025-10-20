@@ -8,6 +8,7 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import { AddPetDialog } from '@/components/pets/AddPetDialog'
 import { RecordsList } from '@/components/records/RecordsList'
 import { AddRecordButtons } from '@/components/records/AddRecordButtons'
+import { PetQRCode } from '@/components/pets/PetQRCode'
 import { formatDate, formatAge } from '@/lib/utils/format'
 
 export const dynamic = 'force-dynamic'
@@ -85,35 +86,40 @@ export default async function HomePage() {
             Admin Dashboard →
           </Link>
         </div>
-        {/* Pet Profile Card */}
-        <Card className="mb-8 flex-shrink-0">
-          <CardHeader>
-            <div className="flex items-start justify-between">
-              <div>
-                <CardTitle className="text-3xl mb-2">{pet.name}</CardTitle>
-                <div className="flex items-center gap-2">
-                  <Badge variant="outline" className="capitalize">
-                    {pet.animalType}
-                  </Badge>
-                  <span className="text-muted-foreground">•</span>
-                  <span className="text-muted-foreground">{formatAge(pet.dateOfBirth)}</span>
+        {/* Pet Profile and QR Code */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 flex-shrink-0">
+          <Card className="md:col-span-2">
+            <CardHeader>
+              <div className="flex items-start justify-between">
+                <div>
+                  <CardTitle className="text-3xl mb-2">{pet.name}</CardTitle>
+                  <div className="flex items-center gap-2">
+                    <Badge variant="outline" className="capitalize">
+                      {pet.animalType}
+                    </Badge>
+                    <span className="text-muted-foreground">•</span>
+                    <span className="text-muted-foreground">{formatAge(pet.dateOfBirth)}</span>
+                  </div>
                 </div>
               </div>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <dl className="grid grid-cols-2 gap-4">
-              <div>
-                <dt className="text-sm font-medium text-muted-foreground">Owner</dt>
-                <dd className="mt-1 text-sm">{pet.ownerName}</dd>
-              </div>
-              <div>
-                <dt className="text-sm font-medium text-muted-foreground">Date of Birth</dt>
-                <dd className="mt-1 text-sm">{formatDate(pet.dateOfBirth)}</dd>
-              </div>
-            </dl>
-          </CardContent>
-        </Card>
+            </CardHeader>
+            <CardContent>
+              <dl className="grid grid-cols-2 gap-4">
+                <div>
+                  <dt className="text-sm font-medium text-muted-foreground">Owner</dt>
+                  <dd className="mt-1 text-sm">{pet.ownerName}</dd>
+                </div>
+                <div>
+                  <dt className="text-sm font-medium text-muted-foreground">Date of Birth</dt>
+                  <dd className="mt-1 text-sm">{formatDate(pet.dateOfBirth)}</dd>
+                </div>
+              </dl>
+            </CardContent>
+          </Card>
+          <div className="hidden md:block">
+            <PetQRCode petId={pet.id} petName={pet.name} />
+          </div>
+        </div>
 
         {/* Medical Records Section */}
         <div className="flex justify-between items-center mb-6 flex-shrink-0">

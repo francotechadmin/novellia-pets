@@ -175,6 +175,25 @@ All pages are **React Server Components** for better performance and SEO.
 - More secure than localStorage approach
 - No authentication required for MVP
 
+## Features
+
+### QR Code for Emergency Access
+
+Each pet profile includes a downloadable QR code that links directly to their medical records.
+
+**Use case:** Print and attach to pet collar for emergency access by vets, shelters, or finders.
+
+**Implementation:**
+- Generates QR code pointing to `/pets/[id]`
+- Display on pet profile pages (homepage & detail view)
+- Download button exports PNG file: `{PetName}-medical-records-qr.png`
+- Uses `qrcode` library for client-side generation
+
+**Why this feature:**
+- **Safety:** Emergency responders can instantly access allergy/vaccination info
+- **Practical:** Addresses real-world need (lost pets, vet visits, boarding)
+ß
+
 ### UX Choices
 
 **Server-First Architecture:**
@@ -210,6 +229,7 @@ All pages are **React Server Components** for better performance and SEO.
 - **Zod** - Schema validation
 - **shadcn/ui** - Component library (17 components)
 - **Sonner** - Toast notifications
+- **QRCode** - QR code generation for pet profiles
 - **Cookies** - Server-side state management
 
 ## Project Structure
@@ -240,6 +260,7 @@ components/
 │   └── ... (13 more)
 ├── pets/
 │   ├── PetCard.tsx             # Pet card for admin grid
+│   ├── PetQRCode.tsx           # QR code component for emergency access
 │   ├── AddPetDialog.tsx        # Responsive pet creation dialog/drawer
 │   └── PetForm.tsx             # Pet form with validation
 ├── records/
