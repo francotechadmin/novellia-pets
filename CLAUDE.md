@@ -66,4 +66,4 @@ Use Next.js `<Image>` component from `next/image` for automatic optimization.
 
 **CSS Theming:**
 Color scheme is managed through CSS variables defined in `globals.css` with automatic dark mode support.
-- Use pnpm for package manager commands
+- Use npm for package manager commands
