@@ -2,6 +2,8 @@
 
 A pet medical records management application built with Next.js 15, TypeScript, SQLite, and server components with cookie-based state management.
 
+![Landing Page](public/landing.jpg)
+
 ## Quick Start
 
 ### Development
@@ -31,11 +33,17 @@ SEED_DB=false docker-compose up
 
 ## Screenshots
 
-### Pet Profile Dashboard
-![Pet Profile Dashboard](public/profile.jpg)
+### Pet Dashboard
+
+![Pet Dashboard](public/dashboard.jpg)
+
+### Pet Profile
+
+![Pet Profile](public/profile.jpg)
 
 ### Admin Dashboard
-![Admin Dashboard](public/dashboard.jpg)
+
+![Admin Dashboard](public/admin.jpg)
 
 ## Data Model
 
