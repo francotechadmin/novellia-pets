@@ -1,155 +1,193 @@
 import Link from 'next/link'
 import { getCurrentPetId } from '@/app/actions/user'
-import { getPetById } from '@/app/actions/pets'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { ScrollArea } from '@/components/ui/scroll-area'
+import { Button } from '@/components/ui/button'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { AddPetDialog } from '@/components/pets/AddPetDialog'
-import { RecordsList } from '@/components/records/RecordsList'
-import { AddRecordButtons } from '@/components/records/AddRecordButtons'
-import { PetQRCode } from '@/components/pets/PetQRCode'
-import { formatDate, formatAge } from '@/lib/utils/format'
+import { QrCode, Syringe, AlertCircle, BarChart3 } from 'lucide-react'
 
 export const dynamic = 'force-dynamic'
 
 export default async function HomePage() {
   const currentPetId = await getCurrentPetId()
 
-  // No pet - show create prompt
-  if (!currentPetId) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center p-4">
-        <div className="max-w-md w-full text-center space-y-6">
-          <div className="space-y-2">
-            <h1 className="text-4xl font-bold tracking-tight">Welcome to Novellia Pets</h1>
-            <p className="text-muted-foreground text-lg">
-              Create your pet account to get started
-            </p>
-          </div>
-          <div className="space-y-4">
-            <AddPetDialog />
-            <p className="text-sm text-muted-foreground">
-              Or{' '}
-              <Link href="/admin" className="text-primary hover:underline">
-                go to Admin Dashboard
-              </Link>{' '}
-              to view all pets
-            </p>
-          </div>
-        </div>
-      </div>
-    )
-  }
-
-  // Load pet data
-  const result = await getPetById(currentPetId)
-
-  if (result.error || !result.data) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center p-4">
-        <div className="max-w-md w-full text-center space-y-6">
-          <div className="space-y-2">
-            <h1 className="text-2xl font-bold tracking-tight">Pet Not Found</h1>
-            <p className="text-muted-foreground">
-              {result.error || 'The pet you are looking for does not exist.'}
-            </p>
-          </div>
-          <div className="space-y-4">
-            <AddPetDialog />
-            <p className="text-sm text-muted-foreground">
-              Or{' '}
-              <Link href="/admin" className="text-primary hover:underline">
-                go to Admin Dashboard
-              </Link>{' '}
-              to view all pets
-            </p>
-          </div>
-        </div>
-      </div>
-    )
-  }
-
-  const pet = result.data
-  const vaccines = pet.records.filter((r) => r.recordType === 'vaccine')
-  const allergies = pet.records.filter((r) => r.recordType === 'allergy')
-
   return (
-    <div className="flex flex-col h-screen">
-      <div className="container max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1 flex flex-col overflow-hidden">
-        <div className="flex items-center justify-between mb-6">
-          <h1 className="text-3xl font-bold tracking-tight">{pet.name}'s Dashboard</h1>
-          <Link
-            href="/admin"
-            className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-          >
-            Admin Dashboard →
-          </Link>
-        </div>
-        {/* Pet Profile and QR Code */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 flex-shrink-0">
-          <Card className="md:col-span-2">
-            <CardHeader>
-              <div className="flex items-start justify-between">
+    <div className="min-h-screen bg-background flex items-center justify-center p-2">
+      <Card className="max-w-7xl w-full">
+        <CardHeader className="text-center space-y-2">
+          <CardTitle className="text-4xl font-bold tracking-tight">
+            Novellia Pets
+          </CardTitle>
+          <CardDescription className="text-lg">
+            Medical records management for your pets
+          </CardDescription>
+        </CardHeader>
+
+        <CardContent className="space-y-8">
+          {/* Features Section */}
+          <div>
+            <h3 className="text-lg font-semibold mb-4">Features</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="flex items-start gap-3">
+                <Syringe className="h-5 w-5 text-primary mt-0.5" />
                 <div>
-                  <CardTitle className="text-3xl mb-2">{pet.name}</CardTitle>
-                  <div className="flex items-center gap-2">
-                    <Badge variant="outline" className="capitalize">
-                      {pet.animalType}
-                    </Badge>
-                    <span className="text-muted-foreground">•</span>
-                    <span className="text-muted-foreground">{formatAge(pet.dateOfBirth)}</span>
-                  </div>
+                  <h4 className="font-medium">Track Vaccinations</h4>
+                  <p className="text-sm text-muted-foreground">
+                    Record vaccine history with dates
+                  </p>
                 </div>
               </div>
-            </CardHeader>
-            <CardContent>
-              <dl className="grid grid-cols-2 gap-4">
+              <div className="flex items-start gap-3">
+                <AlertCircle className="h-5 w-5 text-primary mt-0.5" />
                 <div>
-                  <dt className="text-sm font-medium text-muted-foreground">Owner</dt>
-                  <dd className="mt-1 text-sm">{pet.ownerName}</dd>
+                  <h4 className="font-medium">Manage Allergies</h4>
+                  <p className="text-sm text-muted-foreground">
+                    Document allergies with severity levels
+                  </p>
                 </div>
+              </div>
+              <div className="flex items-start gap-3">
+                <QrCode className="h-5 w-5 text-primary mt-0.5" />
                 <div>
-                  <dt className="text-sm font-medium text-muted-foreground">Date of Birth</dt>
-                  <dd className="mt-1 text-sm">{formatDate(pet.dateOfBirth)}</dd>
+                  <h4 className="font-medium">QR Code Access</h4>
+                  <p className="text-sm text-muted-foreground">
+                    Emergency access via collar tag
+                  </p>
                 </div>
-              </dl>
-            </CardContent>
-          </Card>
-          <div className="hidden md:block">
-            <PetQRCode petId={pet.id} petName={pet.name} />
+              </div>
+              <div className="flex items-start gap-3">
+                <BarChart3 className="h-5 w-5 text-primary mt-0.5" />
+                <div>
+                  <h4 className="font-medium">Admin Dashboard</h4>
+                  <p className="text-sm text-muted-foreground">
+                    View all pets with statistics
+                  </p>
+                </div>
+              </div>
+            </div>
           </div>
-        </div>
 
-        {/* Medical Records Section */}
-        <div className="flex justify-between items-center mb-6 flex-shrink-0">
-          <h2 className="text-2xl font-bold">Medical Records</h2>
-          <AddRecordButtons petId={pet.id} petName={pet.name} />
-        </div>
+          {/* Tech Stack Section */}
+          <div>
+            <h3 className="text-lg font-semibold mb-3">Tech Stack</h3>
+            <TooltipProvider>
+              <div className="flex flex-wrap gap-2">
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Badge variant="secondary" className="cursor-help">Next.js 15</Badge>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p className="max-w-xs">App Router with Turbopack for fast development and production builds</p>
+                  </TooltipContent>
+                </Tooltip>
 
-        <Tabs defaultValue="all" className="flex-1 flex flex-col overflow-hidden">
-          <TabsList className="grid w-full grid-cols-3 flex-shrink-0">
-            <TabsTrigger value="all">All Records ({pet.records.length})</TabsTrigger>
-            <TabsTrigger value="vaccines">Vaccines ({vaccines.length})</TabsTrigger>
-            <TabsTrigger value="allergies">Allergies ({allergies.length})</TabsTrigger>
-          </TabsList>
-          <TabsContent value="all" className="mt-6 flex-1 overflow-hidden">
-            <ScrollArea className="h-full">
-              <RecordsList records={pet.records} />
-            </ScrollArea>
-          </TabsContent>
-          <TabsContent value="vaccines" className="mt-6 flex-1 overflow-hidden">
-            <ScrollArea className="h-full">
-              <RecordsList records={vaccines} />
-            </ScrollArea>
-          </TabsContent>
-          <TabsContent value="allergies" className="mt-6 flex-1 overflow-hidden">
-            <ScrollArea className="h-full">
-              <RecordsList records={allergies} />
-            </ScrollArea>
-          </TabsContent>
-        </Tabs>
-      </div>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Badge variant="secondary" className="cursor-help">React 19</Badge>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p className="max-w-xs">Server Components for better performance and reduced client-side JavaScript</p>
+                  </TooltipContent>
+                </Tooltip>
+
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Badge variant="secondary" className="cursor-help">TypeScript</Badge>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p className="max-w-xs">Type safety throughout the stack with strict mode enabled</p>
+                  </TooltipContent>
+                </Tooltip>
+
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Badge variant="secondary" className="cursor-help">SQLite</Badge>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p className="max-w-xs">Zero-config file-based database with JSON support for flexible schema design</p>
+                  </TooltipContent>
+                </Tooltip>
+
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Badge variant="secondary" className="cursor-help">Server Components</Badge>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p className="max-w-xs">All pages are server-rendered for optimal performance and SEO</p>
+                  </TooltipContent>
+                </Tooltip>
+
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Badge variant="secondary" className="cursor-help">Server Actions</Badge>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p className="max-w-xs">Type-safe server mutations without REST boilerplate or API routes</p>
+                  </TooltipContent>
+                </Tooltip>
+
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Badge variant="secondary" className="cursor-help">Tailwind CSS</Badge>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p className="max-w-xs">Utility-first CSS framework for rapid UI development</p>
+                  </TooltipContent>
+                </Tooltip>
+
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Badge variant="secondary" className="cursor-help">shadcn/ui</Badge>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p className="max-w-xs">High-quality, accessible components built with Radix UI primitives</p>
+                  </TooltipContent>
+                </Tooltip>
+              </div>
+            </TooltipProvider>
+            <p className="text-sm text-muted-foreground mt-3">
+              Polymorphic medical records table with JSON data column for extensibility.
+              REST API demo endpoint at <code className="text-xs bg-muted px-1 py-0.5 rounded">/api/pets</code>.
+            </p>
+          </div>
+
+          {/* Demo Info Section */}
+          <div className="bg-muted/50 rounded-lg p-4">
+            <h3 className="text-sm font-semibold mb-2">Demo Information</h3>
+            <p className="text-sm text-muted-foreground">
+              Pre-seeded with <strong>15 sample pets</strong>, 88 vaccines, and 25 allergies.
+              Create your own pet or explore the admin dashboard.
+            </p>
+          </div>
+
+          {/* Actions Section */}
+          <div className="space-y-4">
+            {!currentPetId ? (
+              <>
+                <AddPetDialog />
+                <div className="text-center">
+                  <p className="text-sm text-muted-foreground">
+                    Or{' '}
+                    <Link href="/admin" className="text-primary hover:underline font-medium">
+                      view all pets in Admin Dashboard
+                    </Link>
+                  </p>
+                </div>
+              </>
+            ) : (
+              <>
+                <Button asChild size="lg" className="w-full">
+                  <Link href={`/pets/${currentPetId}`}>View Your Pet</Link>
+                </Button>
+                <Button asChild variant="outline" size="lg" className="w-full">
+                  <Link href="/admin">Admin Dashboard</Link>
+                </Button>
+              </>
+            )}
+          </div>
+        </CardContent>
+      </Card>
     </div>
   )
 }

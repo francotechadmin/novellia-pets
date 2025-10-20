@@ -16,7 +16,7 @@ export function PetCard({ pet, recordCounts }: PetCardProps) {
   const age = formatAge(pet.dateOfBirth)
 
   return (
-    <Link href={`/pets/${pet.id}`}>
+    <Link href={`/pets/${pet.id}?from=admin`}>
       <Card className="hover:shadow-xl hover:scale-[1.02] transition-all cursor-pointer hover:border-primary/50">
         <CardHeader className="pb-3">
           <div className="flex items-start justify-between">

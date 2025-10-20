@@ -21,9 +21,17 @@ import { formatDate, formatAge } from '@/lib/utils/format'
 
 export const dynamic = 'force-dynamic'
 
-export default async function PetDetailPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function PetDetailPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ id: string }>
+  searchParams: Promise<{ from?: string }>
+}) {
   const resolvedParams = await params
+  const resolvedSearchParams = await searchParams
   const petId = parseInt(resolvedParams.id)
+  const fromAdmin = resolvedSearchParams.from === 'admin'
 
   if (isNaN(petId)) {
     notFound()
@@ -43,20 +51,24 @@ export default async function PetDetailPage({ params }: { params: Promise<{ id: 
     <div className="flex flex-col h-screen">
       <div className="container max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1 flex flex-col overflow-hidden">
         <Breadcrumb className="mb-6 flex-shrink-0">
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink href="/">My Pet</BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbLink href="/admin">Admin Dashboard</BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbPage>{pet.name}</BreadcrumbPage>
-          </BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink href="/">Homepage</BreadcrumbLink>
+            </BreadcrumbItem>
+            {fromAdmin && (
+              <>
+                <BreadcrumbSeparator />
+                <BreadcrumbItem>
+                  <BreadcrumbLink href="/admin">Admin</BreadcrumbLink>
+                </BreadcrumbItem>
+              </>
+            )}
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbPage>{pet.name}</BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 flex-shrink-0">
         <Card className="md:col-span-2">

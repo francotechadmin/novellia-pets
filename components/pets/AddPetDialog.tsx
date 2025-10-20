@@ -31,7 +31,7 @@ export function AddPetDialog() {
 
   const handleSuccess = (petId: number) => {
     setOpen(false)
-    router.refresh()
+    router.push(`/pets/${petId}`)
   }
 
   if (isDesktop) {

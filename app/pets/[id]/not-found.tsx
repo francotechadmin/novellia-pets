@@ -17,11 +17,11 @@ export default function PetNotFound() {
         <Breadcrumb className="mb-6">
           <BreadcrumbList>
             <BreadcrumbItem>
-              <BreadcrumbLink href="/">My Pet</BreadcrumbLink>
+              <BreadcrumbLink href="/">Homepage</BreadcrumbLink>
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
-              <BreadcrumbLink href="/admin">Admin Dashboard</BreadcrumbLink>
+              <BreadcrumbLink href="/admin">Admin</BreadcrumbLink>
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem>

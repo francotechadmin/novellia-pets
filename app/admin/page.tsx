@@ -29,11 +29,11 @@ export default async function AdminPage() {
           <Breadcrumb>
             <BreadcrumbList>
               <BreadcrumbItem>
-                <BreadcrumbLink href="/">My Pet</BreadcrumbLink>
+                <BreadcrumbLink href="/">Homepage</BreadcrumbLink>
               </BreadcrumbItem>
               <BreadcrumbSeparator />
               <BreadcrumbItem>
-                <BreadcrumbPage>Admin Dashboard</BreadcrumbPage>
+                <BreadcrumbPage>Admin</BreadcrumbPage>
               </BreadcrumbItem>
             </BreadcrumbList>
           </Breadcrumb>

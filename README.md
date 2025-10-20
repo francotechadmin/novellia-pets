@@ -151,27 +151,33 @@ Validation handled by Zod schemas in `lib/validations/`.
 
 All pages are **React Server Components** for better performance and SEO.
 
-1. **Homepage (`/`)** - User's Pet Dashboard
-   - No pet: Shows welcome prompt with "Create Pet Account" button
-   - Has pet: Shows pet dashboard with:
-     - Pet profile card (name, type, owner, age, DOB)
-     - Medical records tabs (All/Vaccines/Allergies)
-     - Add Vaccine/Allergy buttons (responsive drawer on mobile)
-     - ScrollArea with flexbox layout for dynamic height
-   - "Admin Dashboard →" link in top right
+1. **Homepage (`/`)** - Landing Page
+   - **Purpose:** Navigation hub and demo information center
+   - App title and tagline
+   - Feature highlights (vaccinations, allergies, QR codes, admin dashboard)
+   - Tech stack showcase with badges
+   - Demo information (15 pre-seeded pets)
+   - **No pet:** "Create Pet Account" button + "Admin Dashboard" link
+   - **Has pet:** "View Your Pet" button + "Admin Dashboard" button
+   - Creating a pet redirects to `/pets/[id]`
 
-2. **Admin Dashboard (`/admin`)** - All Pets View
+2. **Pet Dashboard (`/pets/[id]`)** - Individual Pet View
+   - **Purpose:** View and manage specific pet's medical records
+   - Pet profile card (name, type, owner, age, DOB)
+   - QR code card (desktop only, hidden on mobile)
+   - Medical records tabs (All/Vaccines/Allergies)
+   - Add Vaccine/Allergy buttons (responsive drawer on mobile)
+   - ScrollArea with flexbox layout for dynamic height
+   - Used for both user's pet and admin viewing other pets
+
+3. **Admin Dashboard (`/admin`)** - All Pets View
+   - **Purpose:** System overview with all pet accounts
    - Breadcrumb: "My Pet / Admin Dashboard"
    - Compact statistics card (pets, vaccines, allergies with emojis)
    - Responsive grid of pet cards (1 col mobile, 2 tablet, 3 desktop)
    - ScrollArea fills remaining viewport
    - Each pet card links to `/pets/[id]`
-
-3. **Pet Detail Page (`/pets/[id]`)** - Admin View of Specific Pet
-   - Breadcrumb: "My Pet / Admin Dashboard / {Pet Name}"
-   - Same layout as homepage for consistency
-   - Pet profile card and medical records tabs
-   - Allows admins to view/manage any pet's records
+   - "Back to My Pet" button returns to `/`
 
 ### Account Model
 
@@ -244,16 +250,18 @@ Each pet profile includes a downloadable QR code that links directly to their me
 
 ```
 app/
-├── page.tsx                    # Homepage (user's pet dashboard) - SERVER COMPONENT
-├── admin/
-│   └── page.tsx                # Admin dashboard - SERVER COMPONENT
+├── page.tsx                    # Landing page (navigation hub + demo info) - SERVER COMPONENT
 ├── pets/
 │   └── [id]/
-│       └── page.tsx            # Pet detail page - SERVER COMPONENT
+│       ├── page.tsx            # Pet dashboard (individual pet view) - SERVER COMPONENT
+│       └── not-found.tsx       # Pet not found page
+├── admin/
+│   └── page.tsx                # Admin dashboard (all pets) - SERVER COMPONENT
 ├── api/
 │   └── pets/
 │       └── route.ts            # REST API endpoint (demo)
 ├── layout.tsx                  # Root layout with theme provider
+├── not-found.tsx               # Global 404 page
 ├── actions/
 │   ├── user.ts                 # Cookie management (currentPetId)
 │   ├── pets.ts                 # Pet CRUD operations
