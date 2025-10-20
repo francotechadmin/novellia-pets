@@ -29,6 +29,14 @@ docker-compose up
 SEED_DB=false docker-compose up
 ```
 
+## Screenshots
+
+### Pet Profile Dashboard
+![Pet Profile Dashboard](public/profile.jpg)
+
+### Admin Dashboard
+![Admin Dashboard](public/dashboard.jpg)
+
 ## Data Model
 
 ### Database Schema
