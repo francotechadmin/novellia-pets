@@ -1,7 +1,7 @@
 <h1 align="center">Novellia Pets</h1>
 
 <p align="center">
-  <a href="https://novellia-pets-production.up.railway.app/">Live Demo</a> · <a href="YOUTUBE_LINK">Video Walkthrough</a>
+  <a href="https://novellia-pets-production.up.railway.app/">Live Demo</a> · <a href="https://www.loom.com/share/7fb1c40018244083bfdabc8a3aa4599c?sid=0a0f846c-a0ad-435e-8b42-82648172af8c">Video Walkthrough</a>
 </p>
 
 <p align="center">A pet medical records management application built with Next.js 15, TypeScript, SQLite, and server components with cookie-based state management.</p>
